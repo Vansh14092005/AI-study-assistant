@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Study Assistant</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <main class="workspace">
+    <header class="header">
+      <div>
+        <p class="eyebrow">Study workspace</p>
+        <h1>AI Study Assistant</h1>
+      </div>
+      <label>
+        Education level
+        <select id="education-level">
+          <option value="middle_school">Middle school</option>
+          <option value="high_school" selected>High school</option>
+          <option value="undergraduate">Undergraduate</option>
+          <option value="graduate">Graduate</option>
+        </select>
+      </label>
+    </header>
+
+    <div class="dashboard">
+    <section class="chat-panel" aria-labelledby="chat-title">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Your tutor</p>
+          <h2 id="chat-title">Ask a study question</h2>
+        </div>
+        <span class="status"><span class="status-dot"></span>Ready</span>
+      </div>
+      <div id="messages" class="messages" aria-live="polite">
+        <p class="empty-state">Your conversation will appear here.</p>
+      </div>
+      <form id="chat-form" class="composer">
+        <label class="sr-only" for="message">Your question</label>
+        <textarea id="message" rows="3" placeholder="Try: Explain photosynthesis in simple language" required></textarea>
+        <div class="composer-footer">
+          <select id="action" aria-label="Study action">
+            <option value="chat">Explain</option>
+            <option value="summary_short">Short summary</option>
+            <option value="summary_detailed">Detailed summary</option>
+            <option value="mcq">Create MCQs</option>
+            <option value="practice">Practice questions</option>
+            <option value="solution">Step-by-step solution</option>
+          </select>
+          <button type="submit">Send question</button>
+        </div>
+      </form>
+    </section>
+    <aside class="side-panel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Plan your week</p>
+          <h2>Study plan</h2>
+        </div>
+      </div>
+      <form id="plan-form" class="plan-form">
+        <label>Subjects<input id="subjects" placeholder="Math, Biology" required></label>
+        <label>Minutes per day<input id="minutes-per-day" type="number" min="15" max="720" value="60" required></label>
+        <label>Target date<input id="target-date" type="date" required></label>
+        <button type="submit">Create plan</button>
+      </form>
+      <div id="plan-result" class="plan-result" aria-live="polite">Your saved plan will appear here.</div>
+    </aside>
+    </div>
+  </main>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
