@@ -58,7 +58,7 @@ class OpenAIProvider:
 
 
 class GeminiProvider:
-	def __init__(self, api_key, model):
+	def __init__(self, api_key, model, fallback_models=None):
 		try:
 			from google import genai
 		except ImportError as error:
@@ -67,30 +67,41 @@ class GeminiProvider:
 			) from error
 
 		self.client = genai.Client(api_key=api_key)
-		self.model = model
+		self.models = [model] + [
+			fallback
+			for fallback in (fallback_models or [])
+			if fallback and fallback != model
+		]
 
 	def generate(self, prompt):
-		try:
-			response = self.client.models.generate_content(
-				model=self.model,
-				contents=prompt,
-			)
-			content = response.text
-			if not content:
-				raise AIProviderError("The Gemini provider returned an empty response.")
-			return ProviderResponse(content=content)
-		except AIProviderError:
-			raise
-		except Exception as error:
-			if getattr(error, "status_code", None) == 401 or getattr(error, "code", None) == 401:
-				raise AIProviderError(
-					"Gemini authentication failed. Create a Gemini API key in Google AI Studio and update GEMINI_API_KEY."
-				) from error
-			if getattr(error, "status_code", None) == 503 or getattr(error, "code", None) == 503:
-				raise AIProviderError(
-					"Gemini is temporarily busy. Please wait a moment and try again."
-				) from error
-			raise AIProviderError("The Gemini provider is temporarily unavailable.") from error
+		last_error = None
+		for model in self.models:
+			try:
+				response = self.client.models.generate_content(
+					model=model,
+					contents=prompt,
+				)
+				content = response.text
+				if not content:
+					raise AIProviderError("The Gemini provider returned an empty response.")
+				return ProviderResponse(content=content)
+			except AIProviderError:
+				raise
+			except Exception as error:
+				last_error = error
+				status_code = getattr(error, "status_code", None) or getattr(error, "code", None)
+				if status_code == 401:
+					raise AIProviderError(
+						"Gemini authentication failed. Create a Gemini API key in Google AI Studio and update GEMINI_API_KEY."
+					) from error
+				if status_code not in (429, 500, 503):
+					break
+
+		if getattr(last_error, "status_code", None) in (429, 503) or getattr(last_error, "code", None) in (429, 503):
+			raise AIProviderError(
+				"Gemini models are temporarily busy. Please try again in a moment."
+			) from last_error
+		raise AIProviderError("The Gemini provider is temporarily unavailable.") from last_error
 
 
 def create_provider(config):
@@ -113,5 +124,9 @@ def create_provider(config):
 		return GeminiProvider(
 			api_key=api_key,
 			model=config.get("GEMINI_MODEL", "gemini-flash-lite-latest"),
+			fallback_models=[
+				model.strip()
+				for model in config.get("GEMINI_FALLBACK_MODELS", "").split(",")
+			],
 		)
 	raise AIProviderError(f"Unsupported AI provider: {provider_name}")

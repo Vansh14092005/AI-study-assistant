@@ -20,6 +20,7 @@ Set the provider in `.env`:
 AI_PROVIDER=gemini
 GEMINI_API_KEY=your-key-from-google-ai-studio
 GEMINI_MODEL=gemini-flash-lite-latest
+GEMINI_FALLBACK_MODELS=gemini-3.5-flash-lite,gemini-3.1-flash-lite
 ```
 
 Never commit `.env` or paste an API key into source control.
