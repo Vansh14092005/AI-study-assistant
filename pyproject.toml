@@ -1,2 +1,7 @@
-[tool.vercel]
-entrypoint = "run:app"
+[project]
+name = "ai-study-assistant"
+version = "0.1.0"
+dependencies = [
+    "flask",
+    "google-generativeai"
+]
