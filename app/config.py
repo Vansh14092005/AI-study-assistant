@@ -13,7 +13,9 @@ class Config:
     DEBUG = os.getenv("FLASK_ENV", "development") == "development"
     DATABASE_PATH = os.getenv(
         "DATABASE_PATH",
-        str(PROJECT_ROOT / "instance" / "study_assistant.sqlite3"),
+        "/tmp/study_assistant.sqlite3"
+        if os.getenv("VERCEL")
+        else str(PROJECT_ROOT / "instance" / "study_assistant.sqlite3"),
     )
     AI_PROVIDER = os.getenv("AI_PROVIDER") or "mock"
     AI_REQUEST_TIMEOUT_SECONDS = int(os.getenv("AI_REQUEST_TIMEOUT_SECONDS", "30"))
