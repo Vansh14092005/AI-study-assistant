@@ -3,6 +3,6 @@ name = "ai-study-assistant"
 version = "0.1.0"
 dependencies = [
     "flask",
-    "google-generativeai",
+    "google-genai",
     "python-dotenv"
 ]
